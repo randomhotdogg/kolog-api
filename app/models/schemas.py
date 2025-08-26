@@ -1,4 +1,4 @@
-from pydantic import BaseModel, HttpUrl, Field
+from pydantic import BaseModel, HttpUrl, Field, EmailStr
 from typing import List, Optional, Literal
 from datetime import datetime
 
@@ -82,3 +82,57 @@ class GeminiAnalysisResult(BaseModel):
 class AnalysisResponse(BaseResponse):
     analysis: Optional[GeminiAnalysisResult] = None
     success: bool = True
+
+# 認證相關 schemas
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: Optional[str] = None
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+class GoogleAuthRequest(BaseModel):
+    token: str
+
+# 股票追蹤相關 schemas
+class UserStockCreate(BaseModel):
+    symbol: str
+    company_name: str
+    custom_name: Optional[str] = None
+    start_tracking_date: datetime
+    start_price: float
+    currency: str
+    youtube_analysis: Optional[str] = None  # JSON 字串
+
+class UserStockResponse(BaseModel):
+    id: int
+    symbol: str
+    company_name: str
+    custom_name: Optional[str] = None
+    start_tracking_date: datetime
+    start_price: float
+    currency: str
+    youtube_analysis: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True

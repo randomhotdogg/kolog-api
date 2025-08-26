@@ -3,7 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 
-from routers import transcript, analysis, metadata
+from database import engine, Base
+from models import auth_models
+from routers import transcript, analysis, metadata, auth, user_stocks
 
 # 建立 FastAPI 應用
 app = FastAPI(
@@ -26,7 +28,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 建立資料庫表格
+Base.metadata.create_all(bind=engine)
+
 # 註冊路由
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
+app.include_router(user_stocks.router, prefix="/api/v1/user/stocks", tags=["user-stocks"])
 app.include_router(transcript.router, prefix="/api/v1", tags=["transcript"])
 app.include_router(analysis.router, prefix="/api/v1", tags=["analysis"])
 app.include_router(metadata.router, prefix="/api/v1", tags=["metadata"])
